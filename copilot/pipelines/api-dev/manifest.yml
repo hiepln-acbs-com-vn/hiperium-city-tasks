@@ -1,0 +1,25 @@
+# The manifest for the "api-dev" pipeline.
+# This YAML file defines your pipeline: the source repository it tracks and the order of the environments to deploy to.
+# For more info: https://aws.github.io/copilot-cli/docs/manifest/pipeline/
+name: api-dev
+version: 1
+
+# This section defines your source, changes to which trigger your pipeline.
+source:
+  provider: Bitbucket
+  properties:
+    branch: dev
+    repository: https://bitbucket.org/hiperium/hiperium-city-tasks
+    connection_name: hiperium-city-tasks
+
+# The docker runtime image used to build commands.
+# For AMD64 architecture, use: aws/codebuild/amazonlinux2-x86_64-standard:2.0
+# See https://docs.aws.amazon.com/codebuild/latest/userguide/build-env-ref-available.html for more information.
+build:
+  image: aws/codebuild/amazonlinux2-aarch64-standard:2.0
+
+# This section defines the order of the environments your pipeline will deploy to.
+stages:
+  -
+    name: dev
+    requires_approval: false

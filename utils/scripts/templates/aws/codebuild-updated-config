@@ -1,0 +1,22 @@
+{
+    "name": "pipeline-hiperium-city-tasks-api-TASK_SERVICE_ENV-BuildProject",
+    "environment": {
+        "type": "LINUX_CONTAINER",
+        "image": "aws/codebuild/amazonlinux2-x86_64-standard:4.0",
+        "computeType": "BUILD_GENERAL1_MEDIUM",
+        "environmentVariables": [
+            {
+                "name": "AWS_ACCOUNT_ID",
+                "value": "timer-service-account-id",
+                "type": "PLAINTEXT"
+            },
+            {
+                "name": "PARTITION",
+                "value": "aws",
+                "type": "PLAINTEXT"
+            }
+        ],
+        "privilegedMode": true,
+        "imagePullCredentialsType": "CODEBUILD"
+    }
+}

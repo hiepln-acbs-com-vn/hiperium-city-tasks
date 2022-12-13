@@ -1,0 +1,7 @@
+{
+  "name": "hiperium-city-tasks-pwa",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular"
+}
