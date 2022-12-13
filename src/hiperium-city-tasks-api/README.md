@@ -25,6 +25,14 @@ Execute the following command to build the image using the production Quarkus pr
 ```bash
 docker build -f src/main/docker/Dockerfile.multistage-arm64 -t hiperium/hiperium-city-tasks-api:1.5.0-arm64 .
 ```
+Login to Docker Hub:
+```bash
+docker login
+```
+Or:
+```bash
+docker login -u "username" -p "1234567890" docker.io
+```
 Then push the image to Docker Hub:
 ```bash
 docker push hiperium/hiperium-city-tasks-api:1.5.0-arm64
