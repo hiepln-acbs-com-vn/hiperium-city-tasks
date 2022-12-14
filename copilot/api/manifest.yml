@@ -53,7 +53,7 @@ environments:
       requests: 10
       response_time: 2s
     variables:
-      QUARKUS_OIDC_AUTH_SERVER_URL: https://cognito-idp.us-east-1.amazonaws.com/us-east-1_HJYHtrCgS
+      QUARKUS_OIDC_AUTH_SERVER_URL: https://cognito-idp.aws_region.amazonaws.com/cognito_user_pool_id
     deployment:
       # Stops existing tasks before new ones are started for faster deployments.
       rolling: 'recreate'
