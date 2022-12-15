@@ -10,11 +10,11 @@ export const environment = {
 };
 
 export const authConfig: AuthConfig = {
-  issuer: 'https://cognito-idp.us-east-1.amazonaws.com/us-east-1_HJYHtrCgS',
+  issuer: 'https://cognito-idp.AWS_REGION.amazonaws.com/COGNITO_USER_POOL_ID',
   oidc: true,
   strictDiscoveryDocumentValidation: false,
-  clientId: '7b8hijhtfl8hh8v1l25srj3apd',
-  redirectUri: 'http://localhost:8100/',    // MUST use the root domain for the Amplify Hosting.
+  clientId: 'COGNITO_APP_CLIENT_ID_WEB',
+  redirectUri: 'http://localhost:8100/home',
   responseType: 'code',
   scope: 'phone email openid profile',
   showDebugInformation: !environment.production
