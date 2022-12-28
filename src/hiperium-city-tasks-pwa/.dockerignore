@@ -1,2 +1,8 @@
-*
-www
+/node_modules
+/amplify
+/e2e
+Dockerfile
+*.md
+.editorconfig
+.dockerignore
+.gitignore

@@ -1,13 +1,13 @@
 version: '3.9'
 
 networks:
-  hct-network:
+  tasks-network:
     driver: bridge
 
 services:
-  hct-postgres:
+  tasks-postgres:
     image: postgres:14.4
-    container_name: hct-postgres
+    container_name: tasks-postgres
     environment:
       - POSTGRES_DB=HiperiumCityTasksDB
       - POSTGRES_USER=postgres
@@ -15,33 +15,34 @@ services:
     ports:
       - "5432:5432"
     networks:
-      - hct-network
+      - tasks-network
 
-  hct-api:
+  tasks-api:
     image: hiperium/hiperium-city-tasks-api:1.5.0-arm64
-    container_name: hct-api
+    container_name: tasks-api
     build:
       context: $PWD/src/hiperium-city-tasks-api
-      dockerfile: $PWD/src/hiperium-city-tasks-api/src/main/docker/Dockerfile.multistage-arm64
+      dockerfile: $PWD/src/hiperium-city-tasks-api/Dockerfile
       args:
         - quarkus_profile=dev
     env_file:
       - ./utils/docker/compose/dev.env
     depends_on:
-      - hct-postgres
+      - tasks-postgres
     ports:
       - "8080:8080"
     networks:
-      - hct-network
+      - tasks-network
 
-  hct-nginx:
-    image: nginx:latest
-    container_name: hct-nginx
+  tasks-pwa:
+    image: hiperium/hiperium-city-tasks-pwa:1.5.0-arm64
+    container_name: tasks-pwa
+    build:
+      context: $PWD/src/hiperium-city-tasks-pwa
+      dockerfile: $PWD/src/hiperium-city-tasks-pwa/Dockerfile
     volumes:
       - ./utils/docker/compose/nginx.conf:/etc/nginx/nginx.conf:ro
-    depends_on:
-      - hct-api
     ports:
       - "80:80"
     networks:
-      - hct-network
+      - tasks-network

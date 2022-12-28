@@ -2,7 +2,7 @@
 
 * **Author**: [Andres Solorzano](https://www.linkedin.com/in/aosolorzano/).
 * **Level**: Advanced.
-* **Technologies**: Java, GraalVM, Quarkus, Quartz, Ionic, Angular, NgRx, Docker, Amazon Cognito, AuroraDB (PostgreSQL), Amplify, Amazon API Gateway, Fargate ECS and CloudFormation.
+* **Technologies**: Java, GraalVM, Quarkus, Quartz, Ionic, Angular, NgRx, Docker, Amazon Cognito, AuroraDB (PostgreSQL), Amplify, Amazon ELB, Fargate ECS and CloudFormation.
 
 ---
 
@@ -11,7 +11,7 @@ This project uses the Quarkus Framework to perform CRUD operations over Tasks re
 This timers must be executed automatically by the Quartz Framework. The project also uses the AWS Amplify Framework and is deployed on AWS Fargate ECS using AWS Copilot.
 
 The following image shows the overall architecture of the application on AWS.
-![](utils/images/aws-solution-architecture-v4.png)
+![](utils/images/aws-solution-architecture-v5.png)
 
 If you want to learn more about Quarkus, please visit its website: https://quarkus.io/.
 
@@ -22,7 +22,7 @@ You can follow the last project's details on my [Medium blog](https://aosolorzan
 * CI/CD pipeline configuration [post](https://aosolorzano.medium.com/configuring-a-ci-cd-pipeline-using-the-amazon-copilot-cli-54f3886fbfaf).
 * OpenID Connect and OAuth 2.0 [post](https://aosolorzano.medium.com/implementing-sso-with-amazon-cognito-as-an-identity-provider-idp-38d8e1d4c98d).
 * Implementing Multi-Account Environment on AWS [post](https://aosolorzano.medium.com/implementing-a-multi-account-environment-with-aws-organizations-and-the-iam-identity-center-d1cdb40bdf4d).
-
+* Implementing an Application Load Balancer on AWS [post](https://aosolorzano.medium.com/configuring-an-application-load-balancer-for-an-ecs-cluster-using-the-aws-copilot-cli-865e1b2c34d2).
 ---
 
 ## Requirements
@@ -31,7 +31,7 @@ You can follow the last project's details on my [Medium blog](https://aosolorzan
 3. [AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html) version 2.
 4. [Amplify CLI](https://docs.amplify.aws/cli/start/install).
 5. [AWS Copilot CLI](https://aws.github.io/copilot-cli/) version 1.23.0.
-6. OpenJDK 17. You can use [SDKMAN](https://sdkman.io/install).
+6. OpenJDK 11. You can use [SDKMAN](https://sdkman.io/install).
 7. [Maven](https://maven.apache.org/download.cgi).
 8. [Docker](https://www.docker.com/products/docker-desktop/)
 9. [Docker Compose](https://github.com/docker/compose).

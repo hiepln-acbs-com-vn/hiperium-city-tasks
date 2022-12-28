@@ -2,8 +2,7 @@
 version: 0.2
 env:
   variables:
-    TASK_SERVICE_ENV: dev
-    TESTCONTAINERS_RYUK_DISABLED: true
+    TASK_SERVICE_ENV: prod
 
 phases:
   install:

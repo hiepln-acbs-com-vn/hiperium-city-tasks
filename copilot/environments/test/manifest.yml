@@ -1,9 +1,9 @@
-# The manifest for the "dev" environment.
+# The manifest for the "test" environment.
 # Read the full specification for the "Environment" type at:
 #  https://aws.github.io/copilot-cli/docs/manifest/environment/
 
 # Your environment name will be used in naming your resources like VPC, cluster, etc.
-name: dev
+name: test
 type: Environment
 
 # Copilot can create an S3 bucket for you and write ELB access logs to it.

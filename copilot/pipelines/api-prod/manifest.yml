@@ -1,14 +1,14 @@
-# The manifest for the "api-dev" pipeline.
+# The manifest for the "api-prod" pipeline.
 # This YAML file defines your pipeline: the source repository it tracks and the order of the environments to deploy to.
 # For more info: https://aws.github.io/copilot-cli/docs/manifest/pipeline/
-name: api-dev
+name: api-prod
 version: 1
 
 # This section defines your source, changes to which trigger your pipeline.
 source:
   provider: Bitbucket
   properties:
-    branch: dev
+    branch: prod
     repository: https://bitbucket.org/hiperium/hiperium-city-tasks
     connection_name: hiperium-city-tasks-conn
 
@@ -21,5 +21,5 @@ build:
 # This section defines the order of the environments your pipeline will deploy to.
 stages:
   -
-    name: dev
-    requires_approval: false
+    name: prod
+    requires_approval: true

@@ -13,12 +13,10 @@ applications:
         preBuild:
           commands:
             - nvm use $VERSION_NODE_17
-            - node -v
             - npm ci
         build:
           commands:
             - nvm use $VERSION_NODE_17
-            - node -v
             - npm run build-$USER_BRANCH
       artifacts:
         baseDirectory: www

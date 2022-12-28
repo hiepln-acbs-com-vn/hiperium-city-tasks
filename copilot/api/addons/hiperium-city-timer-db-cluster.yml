@@ -21,8 +21,10 @@ Mappings:
     dev:
       "DBMinCapacity": 0.5 # AllowedValues: from 0.5 through 128
       "DBMaxCapacity": 8   # AllowedValues: from 0.5 through 128
-    
-    All:
+    test:
+      "DBMinCapacity": 0.5 # AllowedValues: from 0.5 through 128
+      "DBMaxCapacity": 8   # AllowedValues: from 0.5 through 128
+    prod:
       "DBMinCapacity": 0.5 # AllowedValues: from 0.5 through 128
       "DBMaxCapacity": 8   # AllowedValues: from 0.5 through 128
 
@@ -105,8 +107,8 @@ Resources:
         - !Ref HiperiumCityTasksDBClusterDBClusterSecurityGroup
       ServerlessV2ScalingConfiguration:
         # Replace "All" below with "!Ref Env" to set different autoscaling limits per environment.
-        MinCapacity: !FindInMap [HiperiumCityTasksDBClusterEnvScalingConfigurationMap, All, DBMinCapacity]
-        MaxCapacity: !FindInMap [HiperiumCityTasksDBClusterEnvScalingConfigurationMap, All, DBMaxCapacity]
+        MinCapacity: !FindInMap [HiperiumCityTasksDBClusterEnvScalingConfigurationMap, !Ref Env, DBMinCapacity]
+        MaxCapacity: !FindInMap [HiperiumCityTasksDBClusterEnvScalingConfigurationMap, !Ref Env, DBMaxCapacity]
 
   HiperiumCityTasksDBClusterDBWriterInstance:
     Metadata:

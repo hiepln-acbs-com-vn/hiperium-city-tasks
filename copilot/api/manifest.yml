@@ -1,12 +1,10 @@
 # The manifest for the "api" service.
-# Read the full specification for the "Backend Service" type at:
-# https://aws.github.io/copilot-cli/docs/manifest/backend-service/
+# Read the full specification for the "Load Balanced Web Service" type at:
+#  https://aws.github.io/copilot-cli/docs/manifest/lb-web-service/
 
-# Your service is reachable at:
-# http://api.${COPILOT_ENVIRONMENT_NAME}.${COPILOT_APPLICATION_NAME}.internal
-# behind an internal load balancer only within your VPC.
+# Your service name will be used in naming your resources like log groups, ECS services, etc.
 name: api
-type: Backend Service
+type: 'Load Balanced Web Service'
 
 # Configuration for your containers and service.
 # Docker build arguments. For additional overrides: https://aws.github.io/copilot-cli/docs/manifest/backend-service/#image-build
@@ -14,46 +12,79 @@ type: Backend Service
 image:
   build:
     context: ./src/hiperium-city-tasks-api
-    dockerfile: ./src/hiperium-city-tasks-api/src/main/docker/Dockerfile.multistage-arm64
-    args:
-      tasks_service_env: ${TASK_SERVICE_ENV}
+    dockerfile: ./src/hiperium-city-tasks-api/Dockerfile
   port: 8080
 
-cpu: 256      # Number of CPU units for the task.
-memory: 512   # Amount of memory in MiB used by the task.
-count: 1      # Number of tasks that should be running in your service.
-exec: true    # Enable running commands in your container.
+cpu: 256                  # Number of CPU units for the task.
+memory: 512               # Amount of memory in MiB used by the task.
+platform: linux/arm64     # See https://aws.github.io/copilot-cli/docs/manifest/backend-service/#platform
+exec: true                # Enable running commands in your container.
+count:                    # Number of tasks that should be running in your service.
+  range: 1-2
+  cooldown:
+    in: 30s
+    out: 60s
+  cpu_percentage: 70
+  memory_percentage:
+    value: 80
+    cooldown:
+      in: 80s
+      out: 160s
+  requests: 1000
+  response_time: 2s
 
-# See https://aws.github.io/copilot-cli/docs/manifest/backend-service/#platform
-platform: linux/arm64
+# The value must be one of 'public' or 'private'. Defaults to launching your tasks in public subnets.
+# See https://aws.github.io/copilot-cli/docs/manifest/backend-service/#network
+network:
+  vpc:
+    placement: 'private'
 
-# Parameters related to integrating the service with an internal Application Load Balancer.
-# See https://aws.github.io/copilot-cli/docs/manifest/backend-service/#http
+# Distribute traffic to your service.
 http:
   path: '/'
   healthcheck:
     path: '/q/health/live'
     port: 8080
-    success_codes: '200'
+    success_codes: '200,301'
     healthy_threshold: 3
     unhealthy_threshold: 2
     interval: 15s
     timeout: 10s
     grace_period: 30s
+  deregistration_delay: 50s
+  stickiness: true
 
-# Pass environment variables as key value pairs.
+# Pass environment variables as key value pairs to ECS containers.
 variables:
   TIME_ZONE_ID: -05:00
+  QUARKUS_OIDC_AUTH_SERVER_URL: https://cognito-idp.aws_region.amazonaws.com/cognito_user_pool_id_pre
 
+# Lets you override any value in the manifest based on the environment we're in.
 environments:
   dev:
-    count:
-      range: 1-2
-      cpu_percentage: 80
-      requests: 10
-      response_time: 2s
-    variables:
-      QUARKUS_OIDC_AUTH_SERVER_URL: https://cognito-idp.aws_region.amazonaws.com/cognito_user_pool_id
+    image:
+      build:
+        args:
+          quarkus_profile: dev
     deployment:
-      # Stops existing tasks before new ones are started for faster deployments.
+      rolling: 'recreate'
+
+  # TEST environment.
+  test:
+    image:
+      build:
+        args:
+          quarkus_profile: test
+    deployment:
+      rolling: 'recreate'
+
+  # PRODUCTION environment.
+  prod:
+    image:
+      build:
+        args:
+          quarkus_profile: prod
+    variables:
+      QUARKUS_OIDC_AUTH_SERVER_URL: https://cognito-idp.aws_region.amazonaws.com/cognito_user_pool_id_prod
+    deployment:
       rolling: 'recreate'

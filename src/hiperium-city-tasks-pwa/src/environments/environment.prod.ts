@@ -3,7 +3,7 @@ import {AuthConfig} from 'angular-oauth2-oidc';
 export const environment = {
   production: true,
   timeZone: 'America/Guayaquil',
-  apiUrl: 'https://API_GATEWAY_ID.execute-api.AWS_REGION.amazonaws.com'
+  apiUrl: 'http://ALB_ENDPOINT'
 };
 
 export const authConfig: AuthConfig = {

@@ -8,12 +8,6 @@ Parameters:
   Name:
     Type: String
     Description: The name of the ECS service deployed using Copilot.
-  AppClientIDWeb:
-    Type: String
-    Description: The client ID of the Cognito User Pool created by Amplify.
-  UserPoolID:
-    Type: String
-    Description: The ID of the Cognito User Pool created by Amplify.
 
 Resources:
   TasksServiceHttpApi:
@@ -24,34 +18,21 @@ Resources:
       ProtocolType: HTTP
       Version: 'v1'
       CorsConfiguration:
-        AllowCredentials: true
         AllowHeaders:
           - 'Content-Type'
           - 'Authorization'
           - 'Accept'
         AllowMethods:
+          - OPTIONS
           - GET
           - POST
           - PUT
           - DELETE
         AllowOrigins:
-          - 'https://amplify_app_host_id.amplifyapp.com'
+          - '*'
         ExposeHeaders:
           - 'Date'
         MaxAge: 172800
-
-  TasksServiceJwtAuthorizer:
-    Type: 'AWS::ApiGatewayV2::Authorizer'
-    Properties:
-      Name: !Sub '${App}-${Name}-${Env}-authorizer'
-      ApiId: !Ref TasksServiceHttpApi
-      AuthorizerType: JWT
-      IdentitySource:
-        - '$request.header.Authorization'
-      JwtConfiguration:
-        Audience:
-          - !Sub '${AppClientIDWeb}'
-        Issuer: !Sub 'https://cognito-idp.${AWS::Region}.amazonaws.com/${UserPoolID}'
 
   TasksServiceVpcLink:
     Type: 'AWS::ApiGatewayV2::VpcLink'
@@ -59,7 +40,9 @@ Resources:
       Name: !Sub '${App}-${Name}-${Env}-vpc-link'
       SubnetIds:
         !Split [ ',', { 'Fn::ImportValue': !Sub '${App}-${Env}-PrivateSubnets' } ]
-      SecurityGroupIds: []
+      SecurityGroupIds:
+        - Fn::ImportValue:
+            !Sub '${App}-${Env}-EnvironmentSecurityGroup'
 
   TasksServiceHttpApiIntegration:
     Type: 'AWS::ApiGatewayV2::Integration'
@@ -72,7 +55,8 @@ Resources:
       ConnectionId: !Ref TasksServiceVpcLink
       IntegrationUri:
         Fn::ImportValue:
-          !Sub '${App}-${Env}-${Name}-DiscoveryServiceARN'
+        # !Sub '${App}-${Env}-${Name}-DiscoveryServiceARN' to access the Tasks Services without the Load Balancer.
+          !Sub '${App}-${Env}-InternalHTTPListenerArn'
       PayloadFormatVersion: '1.0'
 
   TasksServiceHttpApiDefaultRoute:
@@ -80,80 +64,10 @@ Resources:
     Properties:
       ApiId: !Ref TasksServiceHttpApi
       RouteKey: '$default'
-      AuthorizationType: JWT
-      AuthorizerId: !Ref TasksServiceJwtAuthorizer
       Target: !Join
         - /
         - - integrations
           - !Ref TasksServiceHttpApiIntegration
-
-  TasksServiceCorsLambdaExecutionRole:
-    Type: 'AWS::IAM::Role'
-    Properties:
-      AssumeRolePolicyDocument:
-        Version: '2012-10-17'
-        Statement:
-          - Effect: Allow
-            Principal:
-              Service:
-                - lambda.amazonaws.com
-            Action:
-              - 'sts:AssumeRole'
-      ManagedPolicyArns:
-        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
-
-  TasksServiceCorsLambdaFunction:
-    Type: 'AWS::Lambda::Function'
-    Properties:
-      Runtime: nodejs12.x
-      Role: !GetAtt TasksServiceCorsLambdaExecutionRole.Arn
-      Handler: index.handler
-      Code:
-        ZipFile: |
-          exports.handler = async (event) => {
-              const response = {
-                  statusCode: 200,
-                  headers: {
-                    "Access-Control-Allow-Credentials": true,
-                    "Access-Control-Allow-Headers" : "Content-Type, Authorization, Accept",
-                    "Access-Control-Allow-Methods": "GET,POST,PUT,DELETE",
-                    "Access-Control-Allow-Origin": "https://amplify_app_host_id.amplifyapp.com",
-                    "Access-Control-Expose-Headers": "Date",
-                    "Access-Control-Max-Age": "172800"
-                  },
-                  body: JSON.stringify('CORS configuration for Tasks Service API.')
-              };
-              return response;
-          };
-
-  TasksServiceHttpApiOptionsLambdaIntegration:
-    Type: 'AWS::ApiGatewayV2::Integration'
-    Properties:
-      ApiId: !Ref TasksServiceHttpApi
-      Description: 'Lambda proxy integration for HTTP OPTIONS method requests (CORS).'
-      IntegrationType: AWS_PROXY
-      IntegrationMethod: OPTIONS
-      IntegrationUri: !GetAtt TasksServiceCorsLambdaFunction.Arn
-      PayloadFormatVersion: '2.0'
-
-  TasksServiceHttpApiOptionsRoute:
-    Type: 'AWS::ApiGatewayV2::Route'
-    Properties:
-      ApiId: !Ref TasksServiceHttpApi
-      RouteKey: 'OPTIONS /{proxy+}'
-      AuthorizationType: NONE
-      Target: !Join
-        - /
-        - - integrations
-          - !Ref TasksServiceHttpApiOptionsLambdaIntegration
-
-  TasksServiceHttpApiInvokeLambdaPermission:
-    Type: AWS::Lambda::Permission
-    Properties:
-      FunctionName: !Ref TasksServiceCorsLambdaFunction
-      Action: lambda:InvokeFunction
-      Principal: apigateway.amazonaws.com
-      SourceArn: !Sub 'arn:${AWS::Partition}:execute-api:${AWS::Region}:${AWS::AccountId}:${TasksServiceHttpApi}/$default/OPTIONS/{proxy+}'
 
   TasksServiceHttpApiLogGroup:
     Type: 'AWS::Logs::LogGroup'

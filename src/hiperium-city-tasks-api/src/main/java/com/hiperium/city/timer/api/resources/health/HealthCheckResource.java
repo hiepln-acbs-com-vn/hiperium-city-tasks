@@ -1,4 +1,4 @@
-package com.hiperium.city.timer.api.resources.health.check;
+package com.hiperium.city.timer.api.resources.health;
 
 import org.eclipse.microprofile.health.HealthCheck;
 import org.eclipse.microprofile.health.HealthCheckResponse;

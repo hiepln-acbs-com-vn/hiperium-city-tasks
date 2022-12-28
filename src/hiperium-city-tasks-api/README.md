@@ -23,7 +23,7 @@ copilot storage init -t Aurora
 ## Publishing Tasks Service to Docker Hub
 Execute the following command to build the image using the production Quarkus profile:
 ```bash
-docker build -f src/main/docker/Dockerfile.multistage-arm64 -t hiperium/hiperium-city-tasks-api:1.5.0-arm64 .
+docker build -t hiperium/hiperium-city-tasks-api:1.5.0-arm64 .
 ```
 Login to Docker Hub:
 ```bash

@@ -8,6 +8,3 @@ cd "$WORKING_DIR"/src/hiperium-city-tasks-pwa/ || {
 echo ""
 echo "DELETING AMPLIFY APP FROM AWS.."
 amplify delete
-
-echo ""
-echo "DONE!"

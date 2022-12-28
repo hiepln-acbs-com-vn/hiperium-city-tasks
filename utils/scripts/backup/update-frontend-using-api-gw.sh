@@ -9,15 +9,15 @@ echo ""
 echo "Getting information from AWS. Please wait..."
 
 echo ""
-alb_endpoint=$(aws cloudformation describe-stacks       \
-  --stack-name hiperium-city-tasks-"$TASK_SERVICE_ENV"  \
-  --query "Stacks[0].Outputs[?contains(OutputKey,'PublicLoadBalancerDNSName')].OutputValue"  \
+api_gateway_id=$(aws cloudformation describe-stacks   \
+  --stack-name hiperium-city-tasks-api-gw             \
+  --query "Stacks[0].Outputs[?contains(OutputKey, 'TasksServiceHttpApiId')].OutputValue"  \
   --output text)
-if [ -z "$alb_endpoint" ]; then
-  echo "ALB endpoint NOT found on CloudFormation."
+if [ "$api_gateway_id" == 'None' ]; then
+  echo "API Gateway NOT found on CloudFormation or it is still creating."
   exit 0
 fi
-echo "ALB Endpoint: $alb_endpoint"
+echo "API Gateway ID: $api_gateway_id"
 
 authStack=$(aws cloudformation list-stacks --output text \
   --query "StackSummaries[?contains(StackName, 'authHiperiumCityIdP') && (StackStatus=='CREATE_COMPLETE' || StackStatus=='UPDATE_COMPLETE')].[StackName]" \
@@ -58,8 +58,12 @@ fi
 
 echo ""
 echo "UPDATING IONIC ENVIRONMENT CONFIG FILES..."
-sed -e "s/ALB_ENDPOINT/$alb_endpoint/g; s/AWS_REGION/$AWS_REGION/g; s/COGNITO_USER_POOL_ID/$user_pool_id/g; s/COGNITO_APP_CLIENT_ID_WEB/$cognito_app_client_id_web/g; s/TASK_SERVICE_ENV/$TASK_SERVICE_ENV/g; s/AMPLIFY_APP_ID/$amplify_app_id/g;" \
+sed -e "s/API_GATEWAY_ID/$api_gateway_id/g; s/AWS_REGION/$AWS_REGION/g; s/COGNITO_USER_POOL_ID/$user_pool_id/g; s/COGNITO_APP_CLIENT_ID_WEB/$cognito_app_client_id_web/g; s/TASK_SERVICE_ENV/$TASK_SERVICE_ENV/g; s/AMPLIFY_APP_ID/$amplify_app_id/g;" \
   "$WORKING_DIR"/utils/scripts/templates/ionic/ionic-environment-"$TASK_SERVICE_ENV" > src/environments/environment."$TASK_SERVICE_ENV".ts
+if [ "$TASK_SERVICE_ENV" == "dev" ]; then
+  sed -e "s/AWS_REGION/$AWS_REGION/g; s/COGNITO_USER_POOL_ID/$user_pool_id/g; s/COGNITO_APP_CLIENT_ID_WEB/$cognito_app_client_id_web/g;" \
+    "$WORKING_DIR"/utils/scripts/templates/ionic/ionic-environment-local > src/environments/environment.ts
+fi
 echo "DONE!"
 
 echo ""
